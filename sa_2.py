@@ -15,20 +15,20 @@ def rand_swap(ls: list):
 if __name__ == '__main__':
     graph = get_graph()
     alpha = 0.99
-    t_lowest = 0.001
+    t_lowest = 0.01
     limit_iteration = 1000
     limit_unchanged = 150
 
     t_cur = 150
-    path_1 = list(range(7))
-    path_2 = list(range(7, 14))
-    dist_max = max(graph.cal_path_dist(path_1), graph.cal_path_dist(path_2))
+    path_best_1 = path_cur_1 = list(range(7))
+    path_best_2 = path_cur_2 = list(range(7, 14))
+    dist_best = dist_cur = max(graph.cal_path_dist(path_cur_1), graph.cal_path_dist(path_cur_2))
     while t_cur > t_lowest:
         count_unchanged = 0
         count_iteration = 0
         while count_unchanged < limit_unchanged and count_iteration < limit_iteration:
-            path_1_new = path_1.copy()
-            path_2_new = path_2.copy()
+            path_1_new = path_cur_1.copy()
+            path_2_new = path_cur_2.copy()
             action = random.randint(1, 4)
             if action == 1:
                 rand_swap(path_1_new)
@@ -46,17 +46,21 @@ if __name__ == '__main__':
                 else:
                     path_1_new.insert(i, path_2_new.pop(j))
 
-            dist_max_new = max(graph.cal_path_dist(path_1_new), graph.cal_path_dist(path_2_new))
-            dist_delta = dist_max_new - dist_max
+            dist_new = max(graph.cal_path_dist(path_1_new), graph.cal_path_dist(path_2_new))
+            dist_delta = dist_new - dist_cur
             if dist_delta < 0 or math.exp(-dist_delta / t_cur) > random.random():
-                path_1 = path_1_new
-                path_2 = path_2_new
-                dist_max = dist_max_new
+                path_cur_1 = path_1_new
+                path_cur_2 = path_2_new
+                dist_cur = dist_new
+                if dist_cur < dist_best:
+                    dist_best = dist_cur
+                    path_best_1 = path_cur_1
+                    path_best_2 = path_cur_2
             else:
                 count_unchanged += 1
             count_iteration += 1
         t_cur *= alpha
 
-    print(f"环路1: {'->'.join(map(lambda x: str(x + 1), path_1))}")
-    print(f"环路2: {'->'.join(map(lambda x: str(x + 1), path_2))}")
-    print(f"花费时间: {dist_max / 20}h")
+    print(f"环路1: {'->'.join(map(lambda x: str(x + 1), path_best_1))}")
+    print(f"环路2: {'->'.join(map(lambda x: str(x + 1), path_best_2))}")
+    print(f"花费时间: {dist_best / 20}h")
