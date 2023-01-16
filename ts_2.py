@@ -7,7 +7,7 @@ from graph import *
 
 if __name__ == '__main__':
     graph = get_graph()
-    tabu_table_len = 30
+    tabu_table_len = 300
 
 
     def eval_dist(path_1: list, path_2: list):
