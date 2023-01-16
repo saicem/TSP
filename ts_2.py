@@ -13,13 +13,17 @@ if __name__ == '__main__':
     def eval_dist(path_1: list, path_2: list):
         return max(graph.cal_path_dist(path_1), graph.cal_path_dist(path_2))
 
+    def hash_path(path_1: list, path_2: list):
+        return hash(str(path_1) + '.' + str(path_2))
 
     path_best_1 = path_cur_1 = list(range(7))
     path_best_2 = path_cur_2 = list(range(7, 14))
     random.shuffle(path_cur_1)
     random.shuffle(path_cur_2)
     dist_best = dist_cur = eval_dist(path_cur_1, path_cur_2)
-    tabu_table = deque([(path_cur_1, path_cur_2)])
+    hashed_path = hash_path(path_cur_1, path_cur_2)
+    tabu_deque = deque([hashed_path])
+    tabu_table = {hashed_path}
 
 
     def swap_paths(path: list):
@@ -55,14 +59,18 @@ if __name__ == '__main__':
         for p1, p2 in itertools.chain([(x, path_cur_2) for x in swap_paths(path_cur_1)],
                                       [(path_cur_1, x) for x in swap_paths(path_cur_2)],
                                       exchange_paths(path_cur_1, path_cur_2)):
+            hashed_path = hash_path(p1, p2)
+            if hashed_path in tabu_table:
+                continue
             dist_new = eval_dist(p1, p2)
             if dist_new < dist_nex:
                 dist_nex = dist_new
                 path_nex_1 = p1
                 path_nex_2 = p2
-                tabu_table.append((p1, p2))
+                tabu_table.add(hashed_path)
+                tabu_deque.append(hashed_path)
                 if len(tabu_table) > tabu_table_len:
-                    tabu_table.popleft()
+                    tabu_table.remove(tabu_deque.popleft())
 
         dist_cur = dist_nex
         path_cur_1 = path_nex_1
