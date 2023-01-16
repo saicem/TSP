@@ -8,7 +8,7 @@ def rand_swap(ls: list):
     n = len(ls)
     x, y = divmod(random.randint(0, n * (n - 1)), n)
     if x == y:
-        x += 1
+        x = n - 1
     ls[x], ls[y] = ls[y], ls[x]
 
 
